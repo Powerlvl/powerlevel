@@ -1,0 +1,14 @@
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.member-wrapper {
+    //width: fit-content;
+    min-width: 40%;
+    //margin: 0 auto;
+    margin-bottom: 40px;
+}

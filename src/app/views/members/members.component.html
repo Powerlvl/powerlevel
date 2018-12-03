@@ -1,0 +1,9 @@
+<h2 class="mat-h2"> Members</h2>
+<div class="container">
+  <div class="member-wrapper" *ngFor="let member of members" [hidden]="!shouldShow(member.fullName)">
+    <app-member [fullName]="member.fullName"
+                [occupation]="member.occupation"
+                [company]="member.company" (onClick)="onMemberClick($event)">
+    </app-member>
+  </div>
+</div>

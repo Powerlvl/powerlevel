@@ -1,0 +1,9 @@
+
+<div class="btn-wrapper">
+  <button mat-fab class="btn floating-btn" (click)="onMenuClick()" color="primary"><mat-icon>{{opened ? 'closed' : 'menu'}}</mat-icon></button>
+  <div [@openClose]="opened ? 'open' : 'closed'" class="menu-wrapper">
+    <button mat-fab class="btn floating-btn" (click)="onMenuClick()" routerLink="/home"><mat-icon>home</mat-icon></button>
+    <button mat-fab class="btn floating-btn" (click)="onMenuClick()" routerLink="/members"><mat-icon>face</mat-icon></button>
+    <button mat-fab class="btn floating-btn" (click)="onMenuClick()" routerLink="/contact"><mat-icon>phone</mat-icon></button>
+  </div>
+</div>

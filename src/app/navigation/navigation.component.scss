@@ -1,0 +1,21 @@
+.btn-wrapper {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 200;
+}
+
+.menu-wrapper {
+  height: 0%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-wrapper button {
+
+}
+
+.btn {
+  margin-bottom: 50px;
+}
