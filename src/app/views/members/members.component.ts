@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {ViewService} from '../../_service/view.service';
 
 @Component({
   selector: 'app-members',
@@ -9,14 +10,16 @@ export class MembersComponent implements OnInit {
 
   selected = null;
   members = [
-    {fullName: 'Oscar Lantz', occupation: 'Consultant', company: 'Oscar Lantz Consulting AB'},
-    {fullName: 'Johan Burström', occupation: 'Consultant', company: 'Burström Consulting AB'},
-    {fullName: 'Jimmie Van Eijsden', occupation: 'Consultant', company: 'Eijsden AB'},
-    {fullName: 'Dennis Persson', occupation: 'Consultant', company: 'Dennis Person AB'},
+    {fullName: 'Oscar Lantz', occupation: 'Consultant', company: 'Oscar Lantz Consulting AB', description: "Oscar Short Description", img: 'assets/img/oscar.jpg'},
+    {fullName: 'Johan Burström', occupation: 'Consultant', company: 'Burström Consulting AB', description: "Johan Short Description", img: 'assets/img/johan.jpg'},
+    {fullName: 'Jimmie Van Eijsden', occupation: 'Consultant', company: 'Eijsden AB', description: "Jimmie Short Description", img: 'assets/img/jimmie.jpg'},
+    {fullName: 'Dennis Persson', occupation: 'Consultant', company: 'Dennis Person AB', description: "Dennis Short Description", img: 'assets/img/dennis.jpg'},
   ];
-  constructor() { }
+  constructor(private _view: ViewService) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this._view.changeTitle('Members');
+  }
 
   onMemberClick(memberName) {
     this.selected = memberName;

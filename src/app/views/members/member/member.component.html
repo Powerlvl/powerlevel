@@ -1,19 +1,28 @@
-<mat-card [@expand]="expanded ? 'show' : 'hide'" (click)="onCardClick()">
-  <mat-card-header>
-    <!--div mat-card-avatar class="example-header-image"></div-->
-    <mat-card-title>{{fullName}}</mat-card-title>
-    <mat-card-subtitle>{{occupation}}</mat-card-subtitle>
-  </mat-card-header>
-  <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
-  <mat-card-content>
-    <p>
-      The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-      A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-      bred for hunting.
-    </p>
-  </mat-card-content>
-  <mat-card-actions>
-    <button mat-button>LIKE</button>
-    <button mat-button>SHARE</button>
-  </mat-card-actions>
-</mat-card>
+<div class="wrapper">
+  <mat-card (click)="onCardClick()" class="image">
+    <mat-card-header>
+      <!--div mat-card-avatar class="example-header-image"></div-->
+      <mat-card-title>{{member.fullName}}</mat-card-title>
+      <mat-card-subtitle>{{member.occupation}}</mat-card-subtitle>
+    </mat-card-header>
+    <img mat-card-image [src]="member.img" alt="Photo of a Shiba Inu">
+    <mat-card-content>
+      <p>
+        {{member.description}}
+      </p>
+    </mat-card-content>
+    <mat-card-actions>
+     <mat-expansion-panel #more [hideToggle]="true">
+       <mat-expansion-panel-header class="description-panel" [expandedHeight]="'48px'" [collapsedHeight]="'48px'">
+         <h2
+         class="mat-h2"
+         style="margin: 0px">
+         {{more.expanded ? 'Collapse' : 'Expand'}}
+       </h2></mat-expansion-panel-header>
+       <div style="margin-top: 10px;">
+         DESCRIPTION GOES HERE
+       </div>
+     </mat-expansion-panel>
+    </mat-card-actions>
+  </mat-card>
+</div>

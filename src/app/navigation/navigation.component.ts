@@ -1,39 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition,
-} from '@angular/animations';
+import {ViewService} from '../_service/view.service';
+import {Cleanup} from '../cleanup';
+import {takeUntil} from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-navigation',
-  animations: [
-    trigger('openClose', [
-      state('open', style({
-        height: '300px'
-      })),
-      state('closed', style({
-        height: '0px'
-      })),
-      transition('open => closed', [
-        animate('0.25s')
-      ]),
-      transition('closed => open', [
-        animate('0.25s')
-      ]),
-    ]),
-  ],
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss']
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent extends Cleanup implements OnInit {
 
   opened = false;
-  constructor() { }
+  title;
+
+  constructor(private _view: ViewService) {
+    super();
+  }
 
   ngOnInit() {
+    this._view.getTitleObjservable()
+      .pipe(takeUntil(this.doDestroy))
+      .subscribe( title => this.title = title);
   }
 
   onMenuClick() {
