@@ -4,5 +4,6 @@
 Run `ng serve` to start webserver for development 
 
 ## Build And Publish
-Run `npm run publish` to build production dist and push the new dist to gh-pages
+Run `npm run publish` to build production dist and push the new dist to gh-pages.
+This might reset 'custom-domain' in Settings.
 
