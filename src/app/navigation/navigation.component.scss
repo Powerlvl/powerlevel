@@ -1,3 +1,5 @@
+@import "../../theme";
+
 .btn-wrapper {
   position: fixed;
   top: 20px;
@@ -27,4 +29,10 @@
 
 .btn {
   margin-bottom: 50px;
+  background: mat-color($app-accent);
+}
+
+.spacer {
+  height: 90px;
+  width: 100%;
 }
