@@ -1,0 +1,14 @@
+<nav mat-tab-nav-bar headerPosition="below">
+  <button mat-fab mat-tab-link
+          [@btnActivated]="activeLink === link.path ? 'active' : 'inactive'"
+          [disableRipple]="true"
+          [routerLink]="link.path"
+          [matTooltip]="link.name"
+          matTooltipPosition="above"
+          matTooltipClass="on-btn-active"
+          (click)="activeLink = link.path"
+          [class.active]="link.path === activeLink"
+          *ngFor="let link of links"
+     ><mat-icon>{{link.icon}}</mat-icon>
+  </button>
+</nav>

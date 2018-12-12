@@ -9,17 +9,18 @@ import {NavigationModule} from './navigation/navigation.module';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ContactModule} from './views/contact/contact.module';
 import {ViewService} from './_service/view.service';
+import {BtnTabNavModule} from './btn-tab-nav/btn-tab-nav.module';
 
 const routes: Routes = [
   /*{path: 'home', loadChildren: () => HomeModule},
   {path: 'members', loadChildren: () => MembersModule },
   {path: 'contact', loadChildren: () => ContactModule },*/
-  {path: 'home', loadChildren: './views/home/home.module#HomeModule'},
+  {path: '', loadChildren: './views/home/home.module#HomeModule'},
   {path: 'members', loadChildren: './views/members/members.module#MembersModule' },
   {path: 'contact', loadChildren: './views/contact/contact.module#ContactModule' },
   {
-    path: '',
-    redirectTo: 'home',
+    path: 'home',
+    redirectTo: '',
     pathMatch: 'full'
   }
 ];
@@ -32,7 +33,8 @@ const routes: Routes = [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
-    NavigationModule
+    NavigationModule,
+    BtnTabNavModule
   ],
   providers: [ViewService],
   bootstrap: [AppComponent]

@@ -1,0 +1,26 @@
+nav {
+  border-bottom: 0px !important;
+  position: fixed;
+  bottom: 15px;
+  left: 0px;
+  width: 100%;
+  overflow: inherit;
+}
+
+/deep/ nav > div.mat-tab-links {
+  justify-content: center;
+}
+
+button {
+  margin: 0 5px;
+}
+
+.active {
+  opacity: 1;
+  width: 75px;
+  height: 75px;
+}
+
+.on-btn-active {
+    background: #b71c1c;
+  }

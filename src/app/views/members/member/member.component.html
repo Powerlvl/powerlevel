@@ -5,10 +5,10 @@
       <mat-card-title>{{member.fullName}}</mat-card-title>
       <mat-card-subtitle>{{member.occupation}}</mat-card-subtitle>
     </mat-card-header>
-    <img mat-card-image [src]="member.img" alt="Photo of a Shiba Inu">
+    <img mat-card-image [src]="member.img" [alt]="'Photo of '  +  member.fullName.toLowerCase()">
     <mat-card-content>
       <p>
-        {{member.description}}
+        {{member.introduction}}
       </p>
     </mat-card-content>
     <mat-card-actions>
@@ -20,7 +20,7 @@
          {{more.expanded ? 'Collapse' : 'Expand'}}
        </h2></mat-expansion-panel-header>
        <div style="margin-top: 10px;">
-         DESCRIPTION GOES HERE
+         {{member.description}}
        </div>
      </mat-expansion-panel>
     </mat-card-actions>
