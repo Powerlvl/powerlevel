@@ -1,3 +1,6 @@
+@angular/common
+MIT
+
 tslib
 Apache-2.0
 Apache License
@@ -266,9 +269,6 @@ Apache-2.0
 @angular/core
 MIT
 
-@angular/common
-MIT
-
 @angular/platform-browser
 MIT
 
@@ -325,13 +325,13 @@ THE SOFTWARE.
 @angular/animations
 MIT
 
-@angular/router
-MIT
-
 @angular/compiler
 MIT
 
 @angular/platform-browser-dynamic
+MIT
+
+@angular/router
 MIT
 
 core-js
