@@ -29,7 +29,7 @@ export const JIMMIE = {
   occupation: 'Consultant',
   company: 'Eijsden AB',
   introduction: "Jimmie introduction",
-  description: "Jimmie description. Det gick jättebra att ändra från browsern",
+  description: "Jimmie description",
   img: 'assets/img/jimmie.jpg'
 };
 
