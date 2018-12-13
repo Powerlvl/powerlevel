@@ -12,7 +12,7 @@ export const JOHAN = {
   occupation: 'Consultant',
   company: 'Burström Consulting AB',
   introduction: "Johan introduction",
-  description: "Johan description",
+  description: "https://github.com/powerlvl/powerlevel",
   img: 'assets/img/johan.jpg'
 };
 
