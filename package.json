@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "publish": "ng build --prod --base-href \"/\" && ngh --dir=\"dist/powerlevel/\" --cname=powerlvl.se"
   },
   "private": true,
   "dependencies": {
