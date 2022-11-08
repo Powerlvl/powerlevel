@@ -1,0 +1,29 @@
+div.container {
+    height: 90vh;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+}
+
+img.logo {
+    width: 80%;
+    height: auto;
+    transition: all .2s ease-in-out; 
+    &:hover {
+        transform: scale(1.02); 
+    }
+}
+
+img.linkedin {
+    margin-top: 15px;
+    transition: all .2s ease-in-out; 
+    &:hover {
+        transform: scale(1.1); 
+    }
+}
+
+img:hover {
+    cursor: pointer;
+    z-index: 1  
+}
