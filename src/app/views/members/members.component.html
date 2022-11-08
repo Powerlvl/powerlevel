@@ -1,7 +1,0 @@
-<div class="container" [hidden]="!viewReady">
-  <div class="member-wrapper" *ngFor="let member of members" [hidden]="!shouldShow(member.fullName)">
-    <app-member [member]="member"
-                (onClick)="onMemberClick($event)">
-    </app-member>
-  </div>
-</div>
