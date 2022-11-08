@@ -1,7 +1,8 @@
+@import "../styles.scss";
+
 div.container {
     height: 90vh;
     display: flex;
-    justify-content: start;
     align-items: center;
     flex-direction: column;
 }
@@ -27,3 +28,22 @@ img:hover {
     cursor: pointer;
     z-index: 1  
 }
+
+
+@media only screen and (max-width: 600px) {
+    div.container {
+        justify-content: center;
+    }
+  }
+  
+  @media only screen and (min-width: 600px) {
+    div.container {
+        justify-content: center;
+    }
+  }
+  
+  @media only screen and (min-width: 768px) {
+    .container {
+        justify-content: start;
+    }
+  }
