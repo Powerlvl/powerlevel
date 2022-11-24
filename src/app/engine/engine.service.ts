@@ -132,7 +132,6 @@ export class EngineService implements OnDestroy {
       const texture = textureLoader.load( p.img ); // immediately use the texture for material creation const material = new THREE.MeshBasicMaterial( { map: texture } );
       this.imageMaterials.push(new THREE.MeshBasicMaterial( { map: texture } ))
     })
-
     this.addBalls();
     this.createStarGeomatry();
     this.renderer.domElement.addEventListener('pointerup', (e: MouseEvent) => this.onMouseUp(e), false)
@@ -167,7 +166,9 @@ export class EngineService implements OnDestroy {
   }
 
   private balls: any[] = [];
-  private radius = 10;
+  private radius = 0.1;
+  private ballScale = 1;
+  private maxScale = 100;
   public addBalls() {
     const geom = new THREE.CircleGeometry( this.radius, 32 );
     for (var i = 0; i < this.imageMaterials.length; i++) {
@@ -229,6 +230,15 @@ export class EngineService implements OnDestroy {
       if (dt > 0.5) {
         return;  // Assume animation was paused; I don't want to move the balls too much.
       }
+
+      const ballRadius = ball.obj.geometry.parameters.radius;
+
+      if(this.ballScale < this.maxScale) {
+        this.ballScale += 0.05;
+        ball.obj.scale.set(this.ballScale, this.ballScale, 1);
+        console.log(ball.info.name, ballRadius);
+      }
+
       if(ball.state === BallState.Normal) {
         this.calculateBorderCollision(ball, dt); 
         this.calculateCircleCollision(ball, dt);
@@ -270,7 +280,7 @@ export class EngineService implements OnDestroy {
   }
 
   public calculateBorderCollision(ball: any, dt: number) {
-    const radius = this.radius;
+    const radius = this.radius * this.ballScale;
     /* update ball position based on ball velocity and elapsed time */
     ball.x += ball.dx * dt;
     ball.y += ball.dy * dt;
@@ -303,7 +313,7 @@ export class EngineService implements OnDestroy {
   }
 
   public isBallsColliding(b1: any, b2: any) {
-    return b1.obj.position.distanceTo(b2.obj.position) <= this.radius*2;
+    return b1.obj.position.distanceTo(b2.obj.position) <= this.radius*2*this.ballScale;
   }
 
   public handleCollide(b1: any, b2: any) {
@@ -407,6 +417,7 @@ export class EngineService implements OnDestroy {
     if(this.currentState !== ColorState.Main) {
       setTimeout(() => this.updateLogoColors(), 500);
     }
+
     switch(this.currentState) {
       case ColorState.One:
         const colorOne = new THREE.Color(`#${this.levelOneColor}`)
