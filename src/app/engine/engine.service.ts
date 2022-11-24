@@ -1,8 +1,10 @@
+import { LayoutService } from './../layout.service';
 
 import * as THREE from 'three';
 import * as SVGLoader from 'three/examples/jsm/loaders/SVGLoader';
 import {ElementRef, Injectable, NgZone, OnDestroy} from '@angular/core';
 import { group } from '@angular/animations';
+import { NONE_TYPE } from '@angular/compiler';
 
 @Injectable({providedIn: 'root'})
 export class EngineService implements OnDestroy {
@@ -14,11 +16,25 @@ export class EngineService implements OnDestroy {
   private camera: THREE.PerspectiveCamera;
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
+  private raycaster : THREE.Raycaster;
   private clock = new THREE.Clock();
   private frameId: number = null;
   private svgGroup: THREE.Group;
-
-  public constructor(private ngZone: NgZone) {
+  private logoColor = '#3be4b9';
+  private logoBlueMeshes: any[] = [];
+  private levelThree: any[] = [];
+  private levelTwo: any[] = [];
+  private levelOne: any[] = [];
+  private mainColor = '3be4b9';
+  private levelThreeColor = 'fff8c6';
+  private levelTwoColor = 'd2c355';
+  private levelOneColor = 'ffe200';
+  private noneColor = '#777777';
+  linkedInGroup: THREE.Group;
+  arrowHelper: THREE.ArrowHelper;
+  // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  public constructor(private ngZone: NgZone, private layoutService: LayoutService) {
   }
 
   public ngOnDestroy(): void {
@@ -57,7 +73,14 @@ export class EngineService implements OnDestroy {
     // this.light = new THREE.PointLight( 0xffffff, 1, 0 );
     this.light.position.z = 1;
     this.scene.add(this.light);
-
+    this.raycaster = new THREE.Raycaster();
+    this.arrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(),
+      new THREE.Vector3(),
+      0.25,
+      0xffff00
+    )
+    this.scene.add(this.arrowHelper)
     var loader: THREE.TextureLoader = new THREE.TextureLoader();
 
     // Load an image file into a custom material
@@ -79,23 +102,50 @@ export class EngineService implements OnDestroy {
     // this.cube = new THREE.Mesh(geometry, material);
     // this.scene.add(mesh);
     this.updateMax();
-    this.loadSvg('assets/logo-color.svg');
+    this.loadSvg('assets/logo-color.svg', (data: any) => this.onLogoLoad(data), 
+      {
+        color: (actualColor: THREE.Color) => {
+          const colors = [this.levelOneColor, this.levelTwoColor, this.levelThreeColor, this.mainColor]
+          if(colors.indexOf(actualColor.getHexString()) > -1) {
+            return this.noneColor
+          } 
+          return actualColor;
+          
+        },
+        handleShape: ((mesh: THREE.Mesh, color: THREE.Color) => {
+          if(color.getHexString() ===  this.levelThreeColor) {
+            this.levelThree.push(mesh)
+          } else if(color.getHexString() === this.levelTwoColor) {
+            this.levelTwo.push(mesh)
+          } else if(color.getHexString() === this.levelOneColor) {
+            this.levelOne.push(mesh)
+          } else if(color.getHexString() === this.mainColor) {
+            this.logoBlueMeshes.push(mesh)
+          } else {
+            console.log(color.getHexString())
+          }
+        })
+      }
+    );
     const textureLoader = new THREE.TextureLoader();
-    this.images.forEach(i => {
-      const texture = textureLoader.load( i ); // immediately use the texture for material creation const material = new THREE.MeshBasicMaterial( { map: texture } );
+    this.profiles.forEach(p => {
+      const texture = textureLoader.load( p.img ); // immediately use the texture for material creation const material = new THREE.MeshBasicMaterial( { map: texture } );
       this.imageMaterials.push(new THREE.MeshBasicMaterial( { map: texture } ))
     })
 
     this.addBalls();
     this.createStarGeomatry();
-
-
+    this.renderer.domElement.addEventListener('pointerup', (e: MouseEvent) => this.onMouseUp(e), false)
+    this.renderer.domElement.addEventListener('pointerdown', (e: MouseEvent) => this.onMouseDown(e), false)
+    this.renderer.domElement.addEventListener('pointermove', (e: MouseEvent) => this.onMouseMove(e), false)
   }
-  private images = [
-    'assets/burstrom.jfif',
-    'assets/eijsden.jfif',
-    'assets/lantz.jfif',
+
+  private profiles = [
+    {name: 'Johan Burström', 'description': 'Utvecklare', img: 'assets/burstrom.jfif', username: 'burstrom'},
+    {name: 'Jimmie Van Eijsden', 'description': 'Utvecklare', img: 'assets/eijsden.jfif', username: 'jimmie-van-eijsden-31b3b0b3'},
+    {name: 'Oscar Lantz', 'description': 'Utvecklare', img: 'assets/lantz.jfif', username: 'oscarlantz'},
   ];
+
   private imageMaterials: any = [];
 
 
@@ -110,7 +160,6 @@ export class EngineService implements OnDestroy {
           this.render();
         });
       }
-
       window.addEventListener('resize', () => {
         this.resize();
       });
@@ -127,13 +176,16 @@ export class EngineService implements OnDestroy {
             geom, 
             this.imageMaterials[i]
         );
-        ball.id = 'ball-' + i;
-
+        ball.info = this.profiles[i];
+        (ball.obj as THREE.Mesh).name = 'ball-' + i;
         ball.x = this.max.x * 2 * Math.random() - this.max.x;   // set random ball position
         ball.y = this.max.y * 2 * Math.random() - this.max.y;
 
         ball.dx = Math.random() * 75;  // set random ball velocity, in units per second
         ball.dy = Math.random() * 75;
+        ball.dx2 = 0;
+        ball.dy2 = 0;
+        ball.state = BallState.Normal;
         ball.obj.position.set( ball.x, ball.y, 0.5);
         this.scene.add(ball.obj);
         this.balls.push(ball);
@@ -177,8 +229,10 @@ export class EngineService implements OnDestroy {
       if (dt > 0.5) {
         return;  // Assume animation was paused; I don't want to move the balls too much.
       }
-      this.calculateBorderCollision(ball, dt); 
-      this.calculateCircleCollision(ball, dt);
+      if(ball.state === BallState.Normal) {
+        this.calculateBorderCollision(ball, dt); 
+        this.calculateCircleCollision(ball, dt);
+      }
     }
   }
 
@@ -240,7 +294,7 @@ export class EngineService implements OnDestroy {
   }
 
   public calculateCircleCollision(ball: any, dt: number) {
-    this.balls.filter(b => ball.id !== b.id).forEach(b => {
+    this.balls.filter(b => ball.obj.name !== b.obj.name).forEach(b => {
       const dist = ball.obj.position.distanceTo(b.obj.position)
       if(this.isBallsColliding(ball, b)) {
         this.handleCollide(ball, b);
@@ -265,10 +319,13 @@ export class EngineService implements OnDestroy {
     const u4 = (x * b2.dy - y * b2.dx) / d;  // Adjust b  along tangent
 
     // set new velocities
-    b2.dx = x * u1 - y * u4;
-    b2.dy = y * u1 + x * u4;
-    a.dx = x * u3 - y * u2;
-    a.dy = y * u3 + x * u2;     
+    if(b2.state === BallState.Normal) {
+      b2.dx = x * u1 - y * u4;
+      b2.dy = y * u1 + x * u4;
+      a.dx = x * u3 - y * u2;
+      a.dy = y * u3 + x * u2;  
+    }
+   
 }
 
   public resize(): void {
@@ -280,58 +337,105 @@ export class EngineService implements OnDestroy {
 
     this.renderer.setSize(width, height);
     this.updateMax();
-    this.updateSvg()
+    this.updateSvg(this.svgGroup)
+    this.updateSvg(this.linkedInGroup)
+    this.updateSvg(this.linkedInGroup, {scale: 0.30, position: {x: -210, y: -80}});
   }
 
-  public loadSvg(path: string) {
+  public loadSvg(path: string, onLoad: any, params: any = 
+    {
+      color: ((actualColor: THREE.Color) => actualColor),
+      handleShape: ((mesh: THREE.Mesh, color: THREE.Color) => {})
+    }
+  ) {
     const loader = new SVGLoader.SVGLoader();
 
     // load a SVG resource
-    loader.load(path, ( data: any ) => {
+    loader.load(path, 
+      (data) =>  {
         const paths = data.paths;
         const group: THREE.Group = new THREE.Group();
         group.scale.y *= -1;
         for ( let i = 0; i < paths.length; i ++ ) {
-
+  
           const path = paths[ i ];
-
           const material = new THREE.MeshBasicMaterial( {
-            color: path.color,
+            color: params.color(path.color),
             opacity: 1,
             side: THREE.DoubleSide,
             depthWrite: false,
           } );
-
+  
           const shapes = SVGLoader.SVGLoader.createShapes( path );
-
+  
           for ( let j = 0; j < shapes.length; j ++ ) {
-
+            
             const shape = shapes[ j ];
             const geometry = new THREE.ShapeGeometry( shape );
             const mesh = new THREE.Mesh( geometry, material );
+            params.handleShape(mesh, path.color)
             group.add( mesh );
           
           }
-
         }
-        this.svgGroup = group;
-        this.updateSvg();
-        this.scene.add( group );
-
+        onLoad(group);
       },
-      // called when loading is in progresses
       ( xhr: any ) => {
 
         console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-
+  
       },
       // called when loading has errors
       ( error: any ) => {
+  
+        console.log( 'An error happened', error );
+  
+      });
+  }
 
-        console.log( 'An error happened' );
 
-      }
-    );
+  onLogoLoad(svgGroup: any) {
+    this.svgGroup = svgGroup;
+    this.updateSvg(this.svgGroup);
+    this.scene.add( svgGroup );
+    setTimeout(() => this.updateLogoColors(), 1000);
+  }
+
+
+  currentState = ColorState.One;
+  public updateLogoColors() {
+    if(this.currentState !== ColorState.Main) {
+      setTimeout(() => this.updateLogoColors(), 500);
+    }
+    switch(this.currentState) {
+      case ColorState.One:
+        const colorOne = new THREE.Color(`#${this.levelOneColor}`)
+        this.levelOne.forEach(mesh => mesh.material.color = colorOne);
+        this.currentState = ColorState.Two;
+        break;
+      case ColorState.Two:
+        const colorTwo = new THREE.Color(`#${this.levelTwoColor}`)
+        this.levelTwo.forEach(mesh => mesh.material.color = colorTwo);
+        this.currentState = ColorState.Three;
+        break;
+      case ColorState.Three:
+        const colorThree = new THREE.Color(`#${this.levelThreeColor}`)
+        this.levelThree.forEach(mesh => mesh.material.color = colorThree);
+        this.currentState = ColorState.Main;
+        break;
+      case ColorState.Main:
+        const colorMain = new THREE.Color(this.logoColor)
+        this.logoBlueMeshes.forEach(mesh => mesh.material.color = colorMain);
+        this.currentState = ColorState.None;
+        break;  
+      default:
+        const noneColor = new THREE.Color(this.noneColor);
+        this.levelOne.forEach(mesh => mesh.material.color = noneColor);
+        this.levelTwo.forEach(mesh => mesh.material.color = noneColor);
+        this.levelThree.forEach(mesh => mesh.material.color = noneColor);
+        this.logoBlueMeshes.forEach(mesh => mesh.material.color = noneColor);
+        this.currentState = ColorState.One;
+    }
   }
 
   loadImage(imagePath: string) {
@@ -361,21 +465,30 @@ export class EngineService implements OnDestroy {
     );
   }
 
-  updateSvg() {
-    if(!this.svgGroup){
+  updateSvg(svg: THREE.Group, defaultSettings: any=null) {
+    if(!svg){
       return;
     }
-    this.svgGroup.matrix.identity().decompose(this.svgGroup.position, this.svgGroup.quaternion, this.svgGroup.scale)
+    svg.matrix.identity().decompose(svg.position, svg.quaternion, svg.scale)
+    if(!!defaultSettings?.scale) {
+      svg.scale.multiplyScalar(defaultSettings?.scale);
+    }
+    
     // this.svgGroup.matrix.identity();
-    this.svgGroup.scale.y *= -1;
-    let box: THREE.Box3 = new THREE.Box3().setFromObject(this.svgGroup);
+    svg.scale.y *= -1;
+    let box: THREE.Box3 = new THREE.Box3().setFromObject(svg);
     const scale = this.getScaleCompareToViewport(box);      
-    this.svgGroup.scale.multiplyScalar(scale);
+    svg.scale.multiplyScalar(scale);
 
-    box = new THREE.Box3().setFromObject(this.svgGroup);
+    box = new THREE.Box3().setFromObject(svg);
     const center = new THREE.Vector3();
     const size = box.getSize(center);
-    this.svgGroup.position.set(size.x/-2, size.y/2, 0)
+    if(!!defaultSettings?.position) {
+      svg.position.set((size.x/-2) + defaultSettings.position.x, (size.y/2) + defaultSettings.position.y, 0)
+    } else {
+      svg.position.set((size.x/-2), (size.y/2), 0)
+    }
+    
   }
 
   getScaleCompareToViewport(box: THREE.Box3) {
@@ -383,7 +496,6 @@ export class EngineService implements OnDestroy {
     box.getSize(v)
     const scaleX = Math.min(v.x, (this.max.x*2)) / Math.max(v.x, (this.max.x*2))
     const scaleY = Math.min(v.y, (this.max.y*2)) / Math.max(v.y, (this.max.y*2))
-    const min = Math.min(v.x / (this.max.x*2), v.y / (this.max.y * 2));
     return Math.min(scaleX, scaleY);
   }
 
@@ -395,4 +507,112 @@ export class EngineService implements OnDestroy {
     this.max.y = height/2;
     console.log(this.max);
   }
+
+  onMouseMove(event: MouseEvent) {
+    const mouse = {
+        x: (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
+        y: -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1,
+    }
+
+    this.raycaster.setFromCamera(mouse, this.camera)
+
+    const intersects = this.raycaster.intersectObjects(this.balls.map(b => b.obj), false)
+    this.balls.filter(b => b.state === BallState.Stop).forEach(b => {
+      b.state = BallState.Drag
+    });
+    // if (intersects.length > 0) {
+
+    // }
+}
+
+  onMouseUp(event: MouseEvent) {
+    this.mouseDown = false;
+    const mouse = {
+        x: (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
+        y: -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1,
+    }
+    this.raycaster.setFromCamera(mouse, this.camera)
+
+    const intersects = this.raycaster.intersectObjects(this.balls.map(b => b.obj), false)
+
+    if (intersects.length > 0) {
+      const ball = this.balls.filter(b => b.obj.name === intersects[0].object.name)[0];
+      if(ball.state == BallState.Stop) {
+        this.setNormalState(ball, true)
+      } else {
+        if(ball.state === BallState.Normal) {
+          this.mouseDown ? this.setNormalState(ball, true) : this.setStoppedState(ball, true);
+        } else {
+
+        }
+      }
+    }
+    this.balls.filter(b => b.state === BallState.Drag).forEach(b => {
+      this.setNormalState(b, true);
+    });
+  }
+
+  private mouseDown = false;
+  onMouseDown(event: MouseEvent) {
+    this.mouseDown = true;
+    const mouse = {
+        x: (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1,
+        y: -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1,
+    }
+    this.raycaster.setFromCamera(mouse, this.camera)
+
+    const intersects = this.raycaster.intersectObjects(this.balls.map(b => b.obj), false)
+
+    if (intersects.length > 0) {
+      const ball = this.balls.filter(b => b.obj.name === intersects[0].object.name)[0];
+      if(ball.state === BallState.Drag) {
+        return;
+      }
+      setTimeout(() => {
+        if(this.mouseDown) {
+          this.setStoppedState(ball)
+        }
+      }, 100)
+    }
+  }
+
+  setNormalState(ball: any, closeInfo=false) {
+    ball.dx = ball.dx2;
+    ball.dy = ball.dy2;
+    ball.dx2 = 0;
+    ball.dy2 = 0;
+    ball.state = BallState.Normal
+    if(closeInfo) {
+      this.layoutService.showObserver$.next(null);
+    }
+  }
+
+  setStoppedState(ball: any, showInfo=false) {
+    ball.dx2 = ball.dx;
+    ball.dy2 = ball.dy;
+    ball.dx = 0;
+    ball.dy = 0;
+    ball.state = BallState.Stop
+    if(showInfo) {
+      this.layoutService.showObserver$.next(ball.info);
+    }
+  }
+
+}
+
+
+
+
+export enum ColorState {
+  None,
+  One,
+  Two,
+  Three,
+  Main
+}
+
+export enum BallState {
+  Normal,
+  Stop,
+  Drag
 }

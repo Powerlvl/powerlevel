@@ -17,7 +17,10 @@ img.logo {
 }
 
 img.linkedin {
-    margin-top: 15px;
+    z-index: 1000;
+    position: absolute;
+    top: 10px;
+    right: 10px;
     transition: all .2s ease-in-out; 
     &:hover {
         transform: scale(1.1); 
@@ -29,6 +32,15 @@ img:hover {
     z-index: 1  
 }
 
+
+div.info{
+    z-index: 1000;
+    color: white;
+}
+
+::ng-deep .info-name {
+    font-weight: bold;
+}
 
 @media only screen and (max-width: 600px) {
     div.container {
@@ -45,5 +57,8 @@ img:hover {
   @media only screen and (min-width: 768px) {
     .container {
         justify-content: start;
+        color: #fff8c6;
+        color: #d2c355;
+        color: #ffe200;
     }
   }

@@ -1,6 +1,25 @@
 <!-- <div class="container">
-  <a #link hidden="true" href="https://se.linkedin.com/company/powerlevel" target="_blank"></a>
+  
   <img class="logo" src="assets/logo-color.svg" (click)="link.click()">
-  <img class="linkedin grow" src="assets/linkedin-64.png" (click)="link.click()">
+  
 </div> -->
+<a #link hidden="true" href="https://se.linkedin.com/company/powerlevel" target="_blank"></a>
+<img class="linkedin grow" src="assets/linkedin-64.png" (click)="link.click()">
 <app-engine></app-engine>
+<!-- <button (click)="openInfo()">Test</button> -->
+<ng-template>
+  <div class="info">
+    <mat-nav-list>
+      <a href="https://www.linkedin.com/in/{{info?.username}}" target="_blank" mat-list-item>
+        <div>
+          <img src="{{info?.img}}" height="70px">
+        </div>
+        
+        <span style="font-weight: bold;" mat-line>{{info?.name}}</span>
+        <span mat-line>{{info?.description}}</span>
+      </a>
+    </mat-nav-list>
+  </div>
+
+
+</ng-template>
